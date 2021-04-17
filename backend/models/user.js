@@ -1,11 +1,12 @@
-const DataTypes = require("sequelize");
+const DataTypes = require('sequelize');
 const { Model } = DataTypes;
 
-module.exports = class User extends Model {
+module.exports = class User extends (
+  Model
+) {
   static init(sequelize) {
     return super.init(
       {
-        // id가 기본적으로 들어있다.
         email: {
           type: DataTypes.STRING(30), // STRING, TEXT, BOOLEAN, INTEGER, FLOAT, DATETIME
           allowNull: false, // 필수
@@ -21,22 +22,22 @@ module.exports = class User extends Model {
         },
       },
       {
-        modelName: "User",
-        tableName: "users",
+        modelName: 'User',
+        tableName: 'users',
         paranoid: true,
-        charset: "utf8",
-        collate: "utf8_general_ci", // 한글 저장
+        charset: 'utf8',
+        collate: 'utf8_general_ci', // 한글 저장
         sequelize,
       }
     );
   }
   static associate(db) {
-    db.User.hasMany(db.Workspace, { as: "Owned", foreignKey: "OwnerId" });
+    db.User.hasMany(db.Workspace, { as: 'Owned', foreignKey: 'OwnerId' });
     db.User.belongsToMany(db.Workspace, {
       through: db.WorkspaceMember,
-      as: "Workspaces",
+      as: 'Workspaces',
     });
-    db.User.belongsToMany(db.Channel, { through: "ChannelMembers" });
+    db.User.belongsToMany(db.Channel, { through: 'ChannelMembers' });
     db.User.hasMany(db.ChannelChat);
   }
 };
