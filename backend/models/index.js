@@ -1,23 +1,18 @@
-const Sequelize = require("sequelize");
+const Sequelize = require('sequelize');
 
-const workspace = require("./workspace");
-const channel = require("./channel");
-const channelChat = require("./channelChat");
-const dm = require("./dm");
-const user = require("./user");
-const mention = require("./mention");
-const workspaceMember = require("./workspaceMember");
+const workspace = require('./workspace');
+const channel = require('./channel');
+const channelChat = require('./channelChat');
+const dm = require('./dm');
+const user = require('./user');
+const mention = require('./mention');
+const workspaceMember = require('./workspaceMember');
 
-const env = process.env.NODE_ENV || "development";
-const config = require("../config/config")[env];
+const env = process.env.NODE_ENV || 'development';
+const config = require('../config/config')[env];
 const db = {};
 
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  config
-);
+const sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 db.Workspace = workspace;
 db.Channel = channel;
