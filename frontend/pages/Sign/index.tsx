@@ -1,13 +1,14 @@
+import React, { useCallback, useState } from "react";
+import { Redirect, Link } from "react-router-dom";
+import axios from "axios";
+import useSWR, { mutate } from "swr";
+
 import useInput from "@hooks/useInput";
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from "@pages/Sign/styles";
 import fetcher from "@utils/fetcher";
-import axios from "axios";
-import React, { useCallback, useState } from "react";
-import { Redirect } from "react-router-dom";
-import useSWR from "swr";
 
 const SignUp = () => {
-  const { data: userData } = useSWR("/api/users", fetcher);
+  const { data: userData, mutate } = useSWR("/api/users", fetcher);
   const [signUpError, setSignUpError] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [mismatchError, setMismatchError] = useState(false);
@@ -39,6 +40,22 @@ const SignUp = () => {
         return;
       }
       console.log(nickname, email, password);
+      if (!mismatchError && nickname) {
+        console.log("서버로 회원가입하기");
+        axios
+          .post("http://localhost:3095/api/users", {
+            email,
+            nickname,
+            password,
+          })
+          .then((response) => {
+            mutate(response.data);
+          })
+          .catch((error) => {
+            console.log(error.response);
+          })
+          .finally(() => {});
+      }
       // if (!mismatchError) {
       //   setSignUpError(false);
       //   setSignUpSuccess(false);
@@ -52,11 +69,11 @@ const SignUp = () => {
       //     });
       // }
     },
-    [email, nickname, password, mismatchError],
+    [email, nickname, password, passwordCheck, mismatchError],
   );
 
   if (userData) {
-    return <Redirect to="/workspace/sleact" />;
+    return <Redirect to="/workspace/channel" />;
   }
 
   return (
@@ -101,7 +118,7 @@ const SignUp = () => {
       </Form>
       <LinkContainer>
         이미 회원이신가요?&nbsp;
-        <a href="/login">로그인 하러가기</a>
+        <Link to="/login">로그인 하러가기</Link>
       </LinkContainer>
     </div>
   );
