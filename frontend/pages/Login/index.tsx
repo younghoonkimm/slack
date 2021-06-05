@@ -8,7 +8,7 @@ import { Button, Error, Form, Header, Input, Label, LinkContainer } from "../Sig
 import fetcher from "@utils/fetcher";
 
 const LogIn = () => {
-  const { data: userData, error, revalidate } = useSWR("http://localhost:3095/api/users", fetcher, {
+  const { data: userData, error, mutate } = useSWR("http://localhost:3095/api/users", fetcher, {
     dedupingInterval: 100000,
   });
   const [logInError, setLogInError] = useState(false);
@@ -27,7 +27,7 @@ const LogIn = () => {
           },
         )
         .then(() => {
-          revalidate();
+          mutate(false);
         })
         .catch((error) => {
           setLogInError(error.response?.data?.statusCode === 401);
