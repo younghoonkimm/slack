@@ -1,5 +1,5 @@
 import React, { useState, useCallback, FC } from "react";
-import { Redirect, Switch, Route, Link } from "react-router-dom";
+import { Redirect, Switch, Route, Link, useParams } from "react-router-dom";
 import loadable from "@loadable/component";
 import useSWR from "swr";
 import axios from "axios";
@@ -11,7 +11,7 @@ import { Button, Input, Label } from "@pages/Sign/styles";
 const Channel = loadable(() => import("@pages/Channel"));
 const DirectMessage = loadable(() => import("@pages/DirectMessage"));
 
-import { IUser } from "@typings/db";
+import { IUser, IChannel } from "@typings/db";
 import Menu from "@components/Menu";
 import Modal from "@components/Modal";
 import CreateChannelModal from "@components/CreateChannelModal";
@@ -44,8 +44,20 @@ const WorkSpace: FC = ({ children }) => {
   const [newWorkSpace, onChangeNewWorkSpace, setNewWorkSpace] = useInput("");
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput("");
 
+  const params = useParams<{ workspace?: string }>();
+
+  const { workspace } = params;
+
   const { data: userData, error, mutate, revalidate } = useSWR<IUser | false>(
     "http://localhost:3095/api/users",
+    fetcher,
+    {
+      dedupingInterval: 100000,
+    },
+  );
+
+  const { data: channelData } = useSWR<IChannel[]>(
+    userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
     fetcher,
     {
       dedupingInterval: 100000,
@@ -102,7 +114,7 @@ const WorkSpace: FC = ({ children }) => {
 
   const onClickInviteWorkspace = useCallback(() => {}, []);
 
-  const onClickAddChannel = useCallback(() => {
+  const onClickAddChannel = useCallback((e) => {
     setShowCreateChannelSpaceModal(true);
   }, []);
 
@@ -163,12 +175,15 @@ const WorkSpace: FC = ({ children }) => {
           <MenuScroll>
             <Menu showMenu={showWorkSpaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
               <WorkspaceModal>
-                {/* <h2>{userData?.Workspaces.find((v) => v.url === workspace)?.name}</h2> */}
+                <h2>{userData?.Workspaces.find((v) => v.url === workspace)?.name}</h2>
                 <button onClick={onClickInviteWorkspace}>워크스페이스에 사용자 초대</button>
                 <button onClick={onClickAddChannel}>채널 만들기</button>
                 <button onClick={onLogout}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
+            {channelData?.map((v) => (
+              <div key={v.id}>{v.name}</div>
+            ))}
             {/* <ChannelList />
             <DMList /> */}
           </MenuScroll>
@@ -176,8 +191,8 @@ const WorkSpace: FC = ({ children }) => {
         <Chats>
           chats
           <Switch>
-            <Route path="/workspace/channel/" component={Channel} />
-            <Route path="/workspace/dm/" component={DirectMessage} />
+            <Route path="/workspace/:workspace/channel" component={Channel} />
+            <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
           </Switch>
         </Chats>
       </WorkspaceWrapper>

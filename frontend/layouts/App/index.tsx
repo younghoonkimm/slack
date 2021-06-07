@@ -12,7 +12,7 @@ function App() {
       <Redirect exact path="/" to="/login/" />
       <Route path="/login" component={Login} />
       <Route path="/sign" component={Sign} />
-      <Route path="/workspace" component={WorkSpace} />
+      <Route path="/workspace/:workspace" component={WorkSpace} />
     </Switch>
   );
 }
