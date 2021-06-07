@@ -4,7 +4,7 @@ import { Button, Input, Label } from "@pages/Sign/styles";
 import { IChannel, IUser } from "@typings/db";
 import fetcher from "@utils/fetcher";
 import axios from "axios";
-import React, { FC, useCallback } from "react";
+import React, { VFC, useCallback } from "react";
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import useSWR from "swr";
@@ -14,7 +14,7 @@ interface Props {
   onCloseModal: () => void;
   setShowCreateChannelModal: (flag: boolean) => void;
 }
-const CreateChannelModal: FC<Props> = ({ show, onCloseModal, setShowCreateChannelModal }) => {
+const CreateChannelModal: VFC<Props> = ({ show, onCloseModal, setShowCreateChannelModal }) => {
   const params = useParams<{ workspace?: string }>();
   const { workspace } = params;
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput("");
