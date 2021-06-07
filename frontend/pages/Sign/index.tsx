@@ -49,7 +49,7 @@ const SignUp = () => {
             password,
           })
           .then((response) => {
-            mutate(response.data);
+            mutate(response.data, false);
           })
           .catch((error) => {
             console.log(error.response);

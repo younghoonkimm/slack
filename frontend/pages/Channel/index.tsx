@@ -1,11 +1,10 @@
 import React from "react";
-import WorkSpace from "@layouts/WorkSpace";
 
 function Channel() {
   return (
-    <WorkSpace>
-      <div></div>
-    </WorkSpace>
+    <div>
+      <h1>환영합니다</h1>
+    </div>
   );
 }
 
