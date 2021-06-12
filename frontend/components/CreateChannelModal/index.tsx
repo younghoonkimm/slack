@@ -16,8 +16,7 @@ interface Props {
   setShowCreateChannelModal: (flag: boolean) => void;
 }
 const CreateChannelModal: VFC<Props> = ({ show, onCloseModal, setShowCreateChannelModal }) => {
-  const params = useParams<{ workspace?: string; channel?: string }>();
-  const { workspace } = params;
+  const { workspace } = useParams<{ workspace?: string }>();
   const [newChannel, onChangeNewChannel, setNewChannel] = useInput("");
   const { data: userData } = useSWR<IUser | false>("/api/users", fetcher);
   const { revalidate: revalidateChannel } = useSWR<IChannel[]>(

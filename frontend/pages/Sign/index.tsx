@@ -73,7 +73,7 @@ const SignUp = () => {
   );
 
   if (userData) {
-    return <Redirect to="/workspace/slack/channel/일반" />;
+    return <Redirect to="/workspace/sleact" />;
   }
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, FC } from "react";
+import React, { useState, useCallback } from "react";
 import { Redirect, Switch, Route, Link, useParams } from "react-router-dom";
 import loadable from "@loadable/component";
 import useSWR from "swr";
@@ -15,6 +15,10 @@ import { IUser, IChannel } from "@typings/db";
 import Menu from "@components/Menu";
 import Modal from "@components/Modal";
 import CreateChannelModal from "@components/CreateChannelModal";
+import InviteWorkSpaceModal from "@components/InviteWorkSpaceModal";
+import InviteChannelModal from "@components/InviteChannelModal";
+import DMList from "@components/DMList";
+import ChannelList from "@components/ChannelList";
 import fetcher from "@utils/fetcher";
 import useInput from "@hooks/useInput";
 
@@ -36,10 +40,12 @@ import {
 } from "./style";
 
 //VFC
-const WorkSpace: FC = ({ children }) => {
+const WorkSpace = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showCreateWorkSpaceModal, setShowCreateWorkSpaceModal] = useState(false);
   const [showCreateChannelSpaceModal, setShowCreateChannelSpaceModal] = useState(false);
+  const [showInviteWorkSpaceModal, setShowInviteWorkSpaceModal] = useState(false);
+  const [showInviteChannelModal, setShowInviteChannelModal] = useState(false);
   const [showWorkSpaceModal, setShowWorkStateModal] = useState(false);
   const [newWorkSpace, onChangeNewWorkSpace, setNewWorkSpace] = useInput("");
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput("");
@@ -48,24 +54,27 @@ const WorkSpace: FC = ({ children }) => {
 
   const { workspace } = params;
 
-  const { data: userData, error, mutate, revalidate } = useSWR<IUser | false>(
-    "http://localhost:3095/api/users",
+  console.log(useParams());
+
+  const { data: userData, error, mutate, revalidate } = useSWR<IUser | false>("/api/users", fetcher, {
+    dedupingInterval: 100000,
+  });
+
+  const { data: channelData } = useSWR<IChannel[]>(userData ? `/api/workspaces/${workspace}/channels` : null, fetcher, {
+    dedupingInterval: 100000,
+  });
+
+  const { data: memberData } = useSWR<IUser | false>(
+    userData ? `/api/workspaces/${workspace}/members` : null,
     fetcher,
     {
       dedupingInterval: 100000,
     },
   );
 
-  const { data: channelData } = useSWR<IChannel[]>(
-    userData ? `http://localhost:3095/api/workspaces/${workspace}/channels` : null,
-    fetcher,
-    {
-      dedupingInterval: 100000,
-    },
-  );
-
+  console.log(memberData);
   const onLogout = useCallback(() => {
-    axios.post("http://localhost:3095/api/users/logout", null, { withCredentials: true }).then(() => {
+    axios.post("/api/users/logout", null, { withCredentials: true }).then(() => {
       mutate(false);
     });
   }, []);
@@ -82,11 +91,7 @@ const WorkSpace: FC = ({ children }) => {
       if (!newWorkSpace) return;
 
       axios
-        .post(
-          "http://localhost:3095/api/workspaces",
-          { workspace: newWorkSpace, url: newUrl },
-          { withCredentials: true },
-        )
+        .post("/api/workspaces", { workspace: newWorkSpace, url: newUrl }, { withCredentials: true })
         .then(() => {
           revalidate();
           setShowCreateWorkSpaceModal(false);
@@ -108,9 +113,10 @@ const WorkSpace: FC = ({ children }) => {
 
   const onCloseModal = useCallback(() => {
     setShowCreateWorkSpaceModal(false);
+    setShowCreateChannelSpaceModal(false);
+    setShowInviteWorkSpaceModal(false);
+    setShowInviteChannelModal(false);
   }, []);
-
-  const onChangeNewWorkspace = useCallback(() => {}, []);
 
   const onClickInviteWorkspace = useCallback(() => {}, []);
 
@@ -181,17 +187,17 @@ const WorkSpace: FC = ({ children }) => {
                 <button onClick={onLogout}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
-            {channelData?.map((v) => (
+            {/* {channelData?.map((v) => (
               <div key={v.id}>{v.name}</div>
-            ))}
-            {/* <ChannelList />
-            <DMList /> */}
+            ))} */}
+            <ChannelList />
+            <DMList />
           </MenuScroll>
         </Channels>
         <Chats>
           chats
           <Switch>
-            <Route path="/workspace/:workspace/channel" component={Channel} />
+            <Route path="/workspace/:workspace/channel/:channel" component={Channel} />
             <Route path="/workspace/:workspace/dm/:id" component={DirectMessage} />
           </Switch>
         </Chats>
@@ -214,13 +220,18 @@ const WorkSpace: FC = ({ children }) => {
         onCloseModal={onCloseModal}
         setShowCreateChannelModal={setShowCreateChannelSpaceModal}
       />
-      {/* 
-      <InviteWorkspaceModal
-        show={showInviteWorkspaceModal} 
+
+      <InviteWorkSpaceModal
+        show={showInviteWorkSpaceModal}
         onCloseModal={onCloseModal}
-        setShowInviteWorkspaceModal={setShowInviteWorkspaceModal}
+        setShowInviteWorkspaceModal={setShowInviteWorkSpaceModal}
       />
-      <ToastContainer position="bottom-center" /> */}
+      <InviteChannelModal
+        show={showInviteChannelModal}
+        onCloseModal={onCloseModal}
+        setShowInviteChannelModal={setShowInviteChannelModal}
+      />
+      {/* <ToastContainer position="bottom-center" />  */}
     </div>
   );
 };
