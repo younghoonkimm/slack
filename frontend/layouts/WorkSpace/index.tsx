@@ -190,7 +190,7 @@ const WorkSpace = () => {
             {/* {channelData?.map((v) => (
               <div key={v.id}>{v.name}</div>
             ))} */}
-            <ChannelList />
+            <ChannelList userData={userData} />
             <DMList />
           </MenuScroll>
         </Channels>
