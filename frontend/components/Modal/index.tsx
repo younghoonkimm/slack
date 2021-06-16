@@ -6,6 +6,7 @@ interface Props {
   show: boolean;
   onCloseModal: () => void;
 }
+
 const Modal: FC<PropsWithChildren<Props>> = ({ children, show, onCloseModal }) => {
   const stopPropagation = useCallback((e) => {
     e.stopPropagation();
